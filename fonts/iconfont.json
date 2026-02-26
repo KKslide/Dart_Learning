@@ -1,0 +1,114 @@
+{
+  "id": "5106759",
+  "name": "flutter_application",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "flutter项目学习_使用到的图标",
+  "glyphs": [
+    {
+      "icon_id": "1080508",
+      "name": "facebook",
+      "font_class": "facebook",
+      "unicode": "e620",
+      "unicode_decimal": 58912
+    },
+    {
+      "icon_id": "1469225",
+      "name": "github",
+      "font_class": "github",
+      "unicode": "e85a",
+      "unicode_decimal": 59482
+    },
+    {
+      "icon_id": "3004167",
+      "name": "X",
+      "font_class": "X",
+      "unicode": "e648",
+      "unicode_decimal": 58952
+    },
+    {
+      "icon_id": "4936972",
+      "name": "instagram",
+      "font_class": "instagram",
+      "unicode": "e87f",
+      "unicode_decimal": 59519
+    },
+    {
+      "icon_id": "4936987",
+      "name": "weibo",
+      "font_class": "weibo",
+      "unicode": "e882",
+      "unicode_decimal": 59522
+    },
+    {
+      "icon_id": "20647579",
+      "name": "icon_bilibili",
+      "font_class": "icon_bilibili",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "40991312",
+      "name": "XiaoHongShu",
+      "font_class": "XiaoHongShu",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    },
+    {
+      "icon_id": "4936976",
+      "name": "Youtube",
+      "font_class": "Youtube",
+      "unicode": "e880",
+      "unicode_decimal": 59520
+    },
+    {
+      "icon_id": "22273028",
+      "name": "douyin",
+      "font_class": "douyin",
+      "unicode": "e673",
+      "unicode_decimal": 58995
+    },
+    {
+      "icon_id": "584738",
+      "name": "chat",
+      "font_class": "chat1196057easyiconnet1",
+      "unicode": "e62c",
+      "unicode_decimal": 58924
+    },
+    {
+      "icon_id": "320530",
+      "name": "code",
+      "font_class": "code",
+      "unicode": "e669",
+      "unicode_decimal": 58985
+    },
+    {
+      "icon_id": "1194270",
+      "name": "infomation",
+      "font_class": "information",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    },
+    {
+      "icon_id": "5127518",
+      "name": "skull2",
+      "font_class": "skull2",
+      "unicode": "e81a",
+      "unicode_decimal": 59418
+    },
+    {
+      "icon_id": "10561807",
+      "name": "code2",
+      "font_class": "code2",
+      "unicode": "e67c",
+      "unicode_decimal": 59004
+    },
+    {
+      "icon_id": "45282688",
+      "name": "Skull",
+      "font_class": "Skull",
+      "unicode": "e6e4",
+      "unicode_decimal": 59108
+    }
+  ]
+}

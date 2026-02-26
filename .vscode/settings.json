@@ -1,0 +1,11 @@
+{
+  "todo-tree.filtering.excludeGlobs": [
+    "**/build/**",
+    "**/android/**",
+    "**/_riverpod_note_/**",
+    "**/*.g.dart",
+    "**/.dart_tool/**",
+    "**/node_modules/**",
+    "**/lib/providers/06_todo_demo_provider.dart"
+  ]
+}
