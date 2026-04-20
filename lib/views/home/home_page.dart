@@ -8,12 +8,13 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 @RoutePage()
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
-  
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
+class _HomePageState extends State<HomePage>
+    with AutomaticKeepAliveClientMixin {
   static const _imagePaths = [
     'assets/images/pic_1.jpg',
     'assets/images/pic_2.jpg',
@@ -47,10 +48,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
 
   List<TypewriterAnimatedText> _generateTexts(List<String> textList) {
     List<TypewriterAnimatedText> rawList = textList.map((String val) {
-
       return TypewriterAnimatedText(
         val,
-        textStyle: TextStyle( color: Colors.white, fontSize: 30.sp ),
+        textStyle: TextStyle(color: Colors.white, fontSize: 30.sp),
         speed: Duration(milliseconds: 100),
         curve: Curves.bounceInOut,
         cursor: '|',
@@ -59,7 +59,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
 
     return rawList;
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final router = context.router;
@@ -97,14 +97,12 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                 'I`m Lykang',
                 'A Front End Engineer',
                 'Work and live in GuangZhou',
-                'Nice to meet you!😁'
+                'Nice to meet you!😁',
               ]),
-            )
+            ),
           ),
-          
         ],
-      )
+      ),
     );
   }
-  
 }

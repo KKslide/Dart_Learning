@@ -64,12 +64,10 @@ class _BlogPageState extends State<BlogPage>
     // 如果是 TOP 分类, 尝试从 catList 中查找, 如果找不到则返回一个默认的 Category
     if (_selectedCategory == 'TOP') {
       try {
-        return _blogResponse!.catList.firstWhere(
-          (cat) => cat.name == 'TOP',
-        );
+        return _blogResponse!.catList.firstWhere((cat) => cat.name == 'TOP');
       } catch (e) {
         // 如果 TOP 不在 catList 中, 返回一个默认的 Category (使用图文布局)
-        return Category(id: 0, name: 'TOP', show_type: '2');
+        return Category(id: 0, name: 'TOP', showType: 'card');
       }
     }
     return _blogResponse!.catList.firstWhere(
@@ -86,7 +84,7 @@ class _BlogPageState extends State<BlogPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: _isLoading
@@ -122,10 +120,7 @@ class _BlogPageState extends State<BlogPage>
                     left: 0,
                     right: 0,
                     child: Column(
-                      children: [
-                        _buildSearchBar(),
-                        _buildCategoryTabs(),
-                      ],
+                      children: [_buildSearchBar(), _buildCategoryTabs()],
                     ),
                   ),
                 ],
@@ -174,18 +169,22 @@ class _BlogPageState extends State<BlogPage>
 
     // 检查是否有 TOP 分类的数据
     final hasTopCategory = _blogResponse!.blogList.containsKey('TOP');
-    final totalTabs = hasTopCategory ? _blogResponse!.catList.length + 1 : _blogResponse!.catList.length;
+    final totalTabs = hasTopCategory
+        ? _blogResponse!.catList.length + 1
+        : _blogResponse!.catList.length;
 
     return Container(
       height: 50.h,
       padding: EdgeInsets.symmetric(vertical: 8.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [BoxShadow(
-          color: Colors.grey[300]!,
-          blurRadius: 4.r,
-          offset: Offset(0, 2.h),
-        )]
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey[300]!,
+            blurRadius: 4.r,
+            offset: Offset(0, 2.h),
+          ),
+        ],
       ),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -242,7 +241,7 @@ class _BlogPageState extends State<BlogPage>
     final category = _currentCategory;
     if (category == null) return const Center(child: Text('请选择分类'));
 
-    final showType = category.show_type;
+    final showType = category.showType;
     final blogList = _currentBlogList;
 
     if (blogList.isEmpty) {
@@ -250,14 +249,14 @@ class _BlogPageState extends State<BlogPage>
     }
 
     switch (showType) {
-      case '1':
+      case 'simple':
         return _buildSimpleLayout(blogList);
-      case '2':
+      case 'card':
         return _buildImageTextLayout(blogList);
-      case '3':
+      case 'waterfall':
         return _buildWaterfallLayout(blogList);
       default:
-        return _buildSimpleLayout(blogList);
+        return _buildImageTextLayout(blogList);
     }
   }
 
@@ -309,7 +308,9 @@ class _BlogPageState extends State<BlogPage>
                                 ),
                               if (blog.isTopBlog) SizedBox(width: 8.w),
                               Text(
-                                blog.addtime.formatDate('yyyy-MM-dd HH:mm:ss'),
+                                blog.createdAt.formatDate(
+                                  'yyyy-MM-dd HH:mm:ss',
+                                ),
                                 style: TextStyle(
                                   fontSize: 12.sp,
                                   color: Colors.grey[600],
@@ -329,7 +330,10 @@ class _BlogPageState extends State<BlogPage>
                             SizedBox(height: 8.h),
                             Text(
                               blog.description,
-                              style: TextStyle(fontSize: 14.sp, color: Colors.grey[700]),
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: Colors.grey[700],
+                              ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -344,14 +348,18 @@ class _BlogPageState extends State<BlogPage>
                               ),
                               SizedBox(width: 4.w),
                               Text(
-                                '${blog.viewnum}',
+                                '${blog.viewCount}',
                                 style: TextStyle(
                                   fontSize: 12.sp,
                                   color: Colors.grey[600],
                                 ),
                               ),
                               SizedBox(width: 16.w),
-                              Icon(Icons.comment, size: 16.sp, color: Colors.grey[600]),
+                              Icon(
+                                Icons.comment,
+                                size: 16.sp,
+                                color: Colors.grey[600],
+                              ),
                               SizedBox(width: 4.w),
                               Text(
                                 '${blog.commentNum}',
@@ -361,10 +369,14 @@ class _BlogPageState extends State<BlogPage>
                                 ),
                               ),
                               SizedBox(width: 16.w),
-                              Icon(Icons.label, size: 16.sp, color: Colors.grey[600]),
+                              Icon(
+                                Icons.label,
+                                size: 16.sp,
+                                color: Colors.grey[600],
+                              ),
                               SizedBox(width: 4.w),
                               Text(
-                                blog.category,
+                                blog.categoryName ?? '',
                                 style: TextStyle(
                                   fontSize: 12.sp,
                                   color: Colors.grey[600],
@@ -380,14 +392,20 @@ class _BlogPageState extends State<BlogPage>
                   Expanded(
                     flex: 4,
                     child: Padding(
-                      padding: EdgeInsets.only(right: 16.w, top: 16.w, bottom: 16.w),
+                      padding: EdgeInsets.only(
+                        right: 16.w,
+                        top: 16.w,
+                        bottom: 16.w,
+                      ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8.r),
                         child: Image.network(
-                          blog.minpicUrl.startsWith('http://') ||
-                                  blog.minpicUrl.startsWith('https://')
-                              ? blog.minpicUrl
-                              : '${Config.baseUrl}${blog.minpicUrl}',
+                          blog.coverUrl?.isNotEmpty == true
+                              ? (blog.coverUrl!.startsWith('http://') ||
+                                        blog.coverUrl!.startsWith('https://')
+                                    ? blog.coverUrl!
+                                    : '${Config.baseUrl}${blog.coverUrl!}')
+                              : '',
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return Container(
@@ -423,148 +441,152 @@ class _BlogPageState extends State<BlogPage>
             margin: EdgeInsets.only(bottom: 12.h),
             color: Colors.white,
             child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,  // 拉伸子元素
-              children: [
-                // 左侧图片
-                ClipRRect(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(4.r),
-                    bottomLeft: Radius.circular(4.r),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch, // 拉伸子元素
+                children: [
+                  // 左侧图片
+                  ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(4.r),
+                      bottomLeft: Radius.circular(4.r),
+                    ),
+                    child: Image.network(
+                      blog.coverUrl?.isNotEmpty == true
+                          ? (blog.coverUrl!.startsWith('http://') ||
+                                    blog.coverUrl!.startsWith('https://')
+                                ? blog.coverUrl!
+                                : '${Config.baseUrl}${blog.coverUrl!}')
+                          : '',
+                      width: 160.w,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 160.w,
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.image_not_supported),
+                        );
+                      },
+                    ),
                   ),
-                  child: Image.network(
-                    blog.minpicUrl.startsWith('http://') ||
-                            blog.minpicUrl.startsWith('https://')
-                        ? blog.minpicUrl
-                        : '${Config.baseUrl}${blog.minpicUrl}',
-                    width: 160.w,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        width: 160.w,
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.image_not_supported),
-                      );
-                    },
-                  ),
-                ),
-                // 右侧文字
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.all(12.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            if (blog.isTopBlog)
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 6.w,
-                                  vertical: 2.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(4.r),
-                                ),
-                                child: Text(
-                                  'Pinned',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10.sp,
+                  // 右侧文字
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.all(12.w),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              if (blog.isTopBlog)
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 6.w,
+                                    vertical: 2.h,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(4.r),
+                                  ),
+                                  child: Text(
+                                    'Pinned',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10.sp,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            if (blog.isTopBlog) SizedBox(width: 8.w),
-                            Expanded(
-                              child: Text(
-                                blog.addtime.formatDate('yyyy-MM-dd HH:mm:ss'),
-                                style: TextStyle(
-                                  fontSize: 11.sp,
-                                  color: Colors.grey[600],
+                              if (blog.isTopBlog) SizedBox(width: 8.w),
+                              Expanded(
+                                child: Text(
+                                  blog.createdAt.formatDate(
+                                    'yyyy-MM-dd HH:mm:ss',
+                                  ),
+                                  style: TextStyle(
+                                    fontSize: 11.sp,
+                                    color: Colors.grey[600],
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 6.h),
-                        Text(
-                          blog.title,
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.bold,
+                            ],
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if (blog.description.isNotEmpty) ...[
                           SizedBox(height: 6.h),
                           Text(
-                            blog.description,
+                            blog.title,
                             style: TextStyle(
-                              fontSize: 13.sp,
-                              color: Colors.grey[700],
+                              fontSize: 15.sp,
+                              fontWeight: FontWeight.bold,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
-                        ],
-                        SizedBox(height: 8.h),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.visibility,
-                              size: 14.sp,
-                              color: Colors.grey[600],
-                            ),
-                            SizedBox(width: 4.w),
+                          if (blog.description.isNotEmpty) ...[
+                            SizedBox(height: 6.h),
                             Text(
-                              '${blog.viewnum}',
+                              blog.description,
                               style: TextStyle(
-                                fontSize: 11.sp,
-                                color: Colors.grey[600],
+                                fontSize: 13.sp,
+                                color: Colors.grey[700],
                               ),
-                            ),
-                            SizedBox(width: 12.w),
-                            Icon(
-                              Icons.comment,
-                              size: 14.sp,
-                              color: Colors.grey[600],
-                            ),
-                            SizedBox(width: 4.w),
-                            Text(
-                              '${blog.commentNum}',
-                              style: TextStyle(
-                                fontSize: 11.sp,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            const Spacer(),
-                            Icon(
-                              Icons.label,
-                              size: 14.sp,
-                              color: Colors.grey[600],
-                            ),
-                            SizedBox(width: 4.w),
-                            Text(
-                              blog.category,
-                              style: TextStyle(
-                                fontSize: 11.sp,
-                                color: Colors.grey[600],
-                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
-                        ),
-                      ],
+                          SizedBox(height: 8.h),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.visibility,
+                                size: 14.sp,
+                                color: Colors.grey[600],
+                              ),
+                              SizedBox(width: 4.w),
+                              Text(
+                                '${blog.viewCount}',
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              SizedBox(width: 12.w),
+                              Icon(
+                                Icons.comment,
+                                size: 14.sp,
+                                color: Colors.grey[600],
+                              ),
+                              SizedBox(width: 4.w),
+                              Text(
+                                '${blog.commentNum}',
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              const Spacer(),
+                              Icon(
+                                Icons.label,
+                                size: 14.sp,
+                                color: Colors.grey[600],
+                              ),
+                              SizedBox(width: 4.w),
+                              Text(
+                                blog.categoryName ?? '',
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          )
-        ),
+          ),
         );
       },
     );
@@ -582,8 +604,9 @@ class _BlogPageState extends State<BlogPage>
         final blog = blogList[index];
         // 根据索引生成 150-200 之间的随机高度, 创造高低差效果
         // 使用索引确保每次渲染时高度一致
-        final imageHeight = 150.h + (index % 6) * 10.h; // 150, 160, 170, 180, 190, 200 循环
-        
+        final imageHeight =
+            150.h + (index % 6) * 10.h; // 150, 160, 170, 180, 190, 200 循环
+
         return GestureDetector(
           onTap: () {
             context.router.push(ContentRoute(contentId: blog.id));
@@ -595,134 +618,136 @@ class _BlogPageState extends State<BlogPage>
             ),
             color: Colors.white,
             child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 图片 - 使用固定高度但根据内容变化
-              Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(8.r),
-                      topRight: Radius.circular(8.r),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 图片 - 使用固定高度但根据内容变化
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(8.r),
+                        topRight: Radius.circular(8.r),
+                      ),
+                      child: Image.network(
+                        blog.coverUrl?.isNotEmpty == true
+                            ? (blog.coverUrl!.startsWith('http://') ||
+                                      blog.coverUrl!.startsWith('https://')
+                                  ? blog.coverUrl!
+                                  : '${Config.baseUrl}${blog.coverUrl!}')
+                            : '',
+                        width: double.infinity,
+                        height: imageHeight,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: imageHeight,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.image_not_supported),
+                          );
+                        },
+                      ),
                     ),
-                    child: Image.network(
-                      blog.minpicUrl.startsWith('http://') ||
-                              blog.minpicUrl.startsWith('https://')
-                          ? blog.minpicUrl
-                          : '${Config.baseUrl}${blog.minpicUrl}',
-                      width: double.infinity,
-                      height: imageHeight,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          height: imageHeight,
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.image_not_supported),
-                        );
-                      },
-                    ),
-                  ),
-                  if (blog.isTopBlog)
-                    Positioned(
-                      top: 8.h,
-                      left: 8.w,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 6.w,
-                          vertical: 2.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(4.r),
-                        ),
-                        child: Text(
-                          'Pinned',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10.sp,
+                    if (blog.isTopBlog)
+                      Positioned(
+                        top: 8.h,
+                        left: 8.w,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 6.w,
+                            vertical: 2.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(4.r),
+                          ),
+                          child: Text(
+                            'Pinned',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10.sp,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-              // 文字内容 - 自适应高度
-              Padding(
-                padding: EdgeInsets.all(12.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      blog.title,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
-                        height: 1.4,
-                      ),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (blog.description.isNotEmpty) ...[
-                      SizedBox(height: 6.h),
+                  ],
+                ),
+                // 文字内容 - 自适应高度
+                Padding(
+                  padding: EdgeInsets.all(12.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                       Text(
-                        blog.description,
+                        blog.title,
                         style: TextStyle(
-                          fontSize: 12.sp,
-                          color: Colors.grey[700],
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.bold,
                           height: 1.4,
                         ),
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ],
-                    SizedBox(height: 10.h),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.visibility,
-                          size: 12.sp,
-                          color: Colors.grey[600],
-                        ),
-                        SizedBox(width: 4.w),
+                      if (blog.description.isNotEmpty) ...[
+                        SizedBox(height: 6.h),
                         Text(
-                          '${blog.viewnum}',
+                          blog.description,
                           style: TextStyle(
-                            fontSize: 10.sp,
-                            color: Colors.grey[600],
+                            fontSize: 12.sp,
+                            color: Colors.grey[700],
+                            height: 1.4,
                           ),
-                        ),
-                        SizedBox(width: 12.w),
-                        Icon(
-                          Icons.comment,
-                          size: 12.sp,
-                          color: Colors.grey[600],
-                        ),
-                        SizedBox(width: 4.w),
-                        Text(
-                          '${blog.commentNum}',
-                          style: TextStyle(
-                            fontSize: 10.sp,
-                            color: Colors.grey[600],
-                          ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
-                    ),
-                    SizedBox(height: 6.h),
-                    Text(
-                      blog.addtime.formatDate('yyyy-MM-dd HH:mm:ss'),
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        color: Colors.grey[500],
+                      SizedBox(height: 10.h),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.visibility,
+                            size: 12.sp,
+                            color: Colors.grey[600],
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            '${blog.viewCount}',
+                            style: TextStyle(
+                              fontSize: 10.sp,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          SizedBox(width: 12.w),
+                          Icon(
+                            Icons.comment,
+                            size: 12.sp,
+                            color: Colors.grey[600],
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            '${blog.commentNum}',
+                            style: TextStyle(
+                              fontSize: 10.sp,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 6.h),
+                      Text(
+                        blog.createdAt.formatDate('yyyy-MM-dd HH:mm:ss'),
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
         );
       },
     );

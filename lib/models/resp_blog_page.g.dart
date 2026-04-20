@@ -29,37 +29,39 @@ Map<String, dynamic> _$BlogResponseToJson(BlogResponse instance) =>
 Category _$CategoryFromJson(Map<String, dynamic> json) => Category(
   id: (json['id'] as num).toInt(),
   name: json['name'] as String,
-  show_type: json['show_type'] as String,
+  showType: json['show_type'] as String,
 );
 
 Map<String, dynamic> _$CategoryToJson(Category instance) => <String, dynamic>{
   'id': instance.id,
   'name': instance.name,
-  'show_type': instance.show_type,
+  'show_type': instance.showType,
 };
 
 BlogItem _$BlogItemFromJson(Map<String, dynamic> json) => BlogItem(
   id: (json['id'] as num).toInt(),
   title: json['title'] as String,
-  category: json['category'] as String,
+  categoryName: json['category'] as String?,
+  categoryId: (json['category_id'] as num?)?.toInt(),
   description: json['description'] as String,
-  addtime: json['addtime'] as String,
-  viewnum: (json['viewnum'] as num).toInt(),
-  minpicUrl: json['minpic_url'] as String,
-  isTop: json['is_top'] as String,
-  rankIndex: (json['rank_index'] as num).toInt(),
+  createdAt: json['created_at'] as String,
+  viewCount: (json['view_count'] as num).toInt(),
+  coverUrl: json['cover_url'] as String?,
+  isPinned: (json['is_pinned'] as num).toInt(),
+  sortOrder: (json['sort_order'] as num?)?.toInt(),
   commentNum: (json['comment_num'] as num).toInt(),
 );
 
 Map<String, dynamic> _$BlogItemToJson(BlogItem instance) => <String, dynamic>{
   'id': instance.id,
   'title': instance.title,
-  'category': instance.category,
+  'category': instance.categoryName,
+  'category_id': instance.categoryId,
   'description': instance.description,
-  'addtime': instance.addtime,
-  'viewnum': instance.viewnum,
-  'minpic_url': instance.minpicUrl,
-  'is_top': instance.isTop,
-  'rank_index': instance.rankIndex,
+  'created_at': instance.createdAt,
+  'view_count': instance.viewCount,
+  'cover_url': instance.coverUrl,
+  'is_pinned': instance.isPinned,
+  'sort_order': instance.sortOrder,
   'comment_num': instance.commentNum,
 };

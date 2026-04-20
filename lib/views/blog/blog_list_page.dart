@@ -8,7 +8,7 @@ import 'package:flutter_application/utils/logger.dart';
 class ApiTrial {
   static Future<BlogResponse> list() async {
     final ResultData(result: result, err: err) = await httpManager.get(
-      '/api/user/getpage'
+      '/api/user/page',
     );
     if (err != null) {
       throw err;
@@ -24,24 +24,22 @@ class BlogListTrialPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Dio Trial'),
-      ),
+      appBar: AppBar(title: Text('Dio Trial')),
       body: Center(
         child: ElevatedButton(
           onPressed: () async {
             var response = await ApiTrial.list();
             logger.info('分类列表:');
             for (var cat in response.catList) {
-              logger.info('${cat.id}: ${cat.name}|||展示方式: ${cat.show_type}');
+              logger.info('${cat.id}: ${cat.name}|||展示方式: ${cat.showType}');
             }
 
             logger.info('\n博客列表:');
-  
+
             // 获取置顶博客
             final topBlogs = response.blogList['TOP'] ?? [];
             logger.info('置顶博客: ${topBlogs.length} 篇');
-            
+
             // 获取 Code 分类的博客
             final codeBlogs = response.blogList['Code'] ?? [];
             logger.info('Code 分类: ${codeBlogs.length} 篇');
@@ -53,8 +51,8 @@ class BlogListTrialPage extends StatelessWidget {
             response.blogList.forEach((category, blogs) {
               logger.info('$category: ${blogs.length} 篇');
             });
-          }, 
-          child: Text('Dio request')
+          },
+          child: Text('Dio request'),
         ),
       ),
     );

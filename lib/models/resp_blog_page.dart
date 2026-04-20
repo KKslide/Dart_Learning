@@ -22,9 +22,10 @@ class BlogResponse {
 class Category {
   final int id;
   final String name;
-  final String show_type;
+  @JsonKey(name: 'show_type')
+  final String showType;
 
-  Category({required this.id, required this.name, required this.show_type});
+  Category({required this.id, required this.name, required this.showType});
 
   factory Category.fromJson(Map<String, dynamic> json) =>
       _$CategoryFromJson(json);
@@ -37,19 +38,24 @@ class Category {
 class BlogItem {
   final int id;
   final String title;
-  final String category;
+  @JsonKey(name: 'category')
+  final String? categoryName;
+  @JsonKey(name: 'category_id')
+  final int? categoryId;
   final String description;
-  final String addtime;
-  final int viewnum;
+  @JsonKey(name: 'created_at')
+  final String createdAt;
+  @JsonKey(name: 'view_count')
+  final int viewCount;
 
-  @JsonKey(name: 'minpic_url')
-  final String minpicUrl;
+  @JsonKey(name: 'cover_url')
+  final String? coverUrl;
 
-  @JsonKey(name: 'is_top')
-  final String isTop;
+  @JsonKey(name: 'is_pinned')
+  final int isPinned;
 
-  @JsonKey(name: 'rank_index')
-  final int rankIndex;
+  @JsonKey(name: 'sort_order')
+  final int? sortOrder;
 
   @JsonKey(name: 'comment_num')
   final int commentNum;
@@ -57,13 +63,14 @@ class BlogItem {
   BlogItem({
     required this.id,
     required this.title,
-    required this.category,
+    this.categoryName,
+    this.categoryId,
     required this.description,
-    required this.addtime,
-    required this.viewnum,
-    required this.minpicUrl,
-    required this.isTop,
-    required this.rankIndex,
+    required this.createdAt,
+    required this.viewCount,
+    this.coverUrl,
+    required this.isPinned,
+    this.sortOrder,
     required this.commentNum,
   });
 
@@ -73,5 +80,5 @@ class BlogItem {
   Map<String, dynamic> toJson() => _$BlogItemToJson(this);
 
   // 辅助方法: 判断是否置顶
-  bool get isTopBlog => isTop == '1';
+  bool get isTopBlog => isPinned == 1;
 }

@@ -16,10 +16,7 @@ import 'package:video_player/video_player.dart';
 class ContentPage extends StatefulWidget {
   final int contentId;
 
-  const ContentPage({
-    super.key,
-    required this.contentId,
-  });
+  const ContentPage({super.key, required this.contentId});
 
   @override
   State<ContentPage> createState() => _ContentPageState();
@@ -72,10 +69,10 @@ class _ContentPageState extends State<ContentPage> {
       });
 
       // 初始化视频播放器（如果有视频）
-      if (response.cur.videoSrc != null &&
-          response.cur.videoSrc!.isNotEmpty &&
-          response.cur.videoSrc != 'null') {
-        _initVideoPlayer(response.cur.videoSrc!);
+      if (response.cur.videoUrl != null &&
+          response.cur.videoUrl!.isNotEmpty &&
+          response.cur.videoUrl != 'null') {
+        _initVideoPlayer(response.cur.videoUrl!);
       }
     } catch (e) {
       setState(() {
@@ -94,14 +91,14 @@ class _ContentPageState extends State<ContentPage> {
 
       _videoController = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
       await _videoController!.initialize();
-      
+
       // 添加监听器，当播放状态改变时更新 UI
       _videoController!.addListener(() {
         if (mounted) {
           setState(() {});
         }
       });
-      
+
       if (mounted) {
         setState(() {});
       }
@@ -122,18 +119,18 @@ class _ContentPageState extends State<ContentPage> {
       return;
     }
     if (comment.length > _maxCommentLength) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('评论不能超过 $_maxCommentLength 字')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('评论不能超过 $_maxCommentLength 字')));
       return;
     }
 
     // 暂时用 print 处理
     print('提交评论: $comment');
     _commentController.clear();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('评论已提交（调试模式）')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('评论已提交（调试模式）')));
   }
 
   void _navigateToArticle(int? articleId) {
@@ -155,30 +152,30 @@ class _ContentPageState extends State<ContentPage> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('加载失败: $_error'),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _loadContent,
-                        child: const Text('重试'),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('加载失败: $_error'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _loadContent,
+                    child: const Text('重试'),
                   ),
-                )
-              : _contentResponse == null
-                  ? const Center(child: Text('暂无数据'))
-                  : GestureDetector(
-                      onTap: () {
-                        // 点击外部时，如果输入框有焦点，则失焦
-                        if (_commentFocusNode.hasFocus) {
-                          _commentFocusNode.unfocus();
-                        }
-                      },
-                      child: _buildContent(),
-                    ),
+                ],
+              ),
+            )
+          : _contentResponse == null
+          ? const Center(child: Text('暂无数据'))
+          : GestureDetector(
+              onTap: () {
+                // 点击外部时，如果输入框有焦点，则失焦
+                if (_commentFocusNode.hasFocus) {
+                  _commentFocusNode.unfocus();
+                }
+              },
+              child: _buildContent(),
+            ),
     );
   }
 
@@ -194,7 +191,7 @@ class _ContentPageState extends State<ContentPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Banner 图片（如果有）
-          if (cur.banner != null && cur.banner!.isNotEmpty)
+          if (cur.bannerUrl != null && cur.bannerUrl!.isNotEmpty)
             Container(
               margin: EdgeInsets.only(bottom: 16.h),
               width: double.infinity,
@@ -212,10 +209,10 @@ class _ContentPageState extends State<ContentPage> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8.r),
                 child: Image.network(
-                  cur.banner!.startsWith('http://') ||
-                          cur.banner!.startsWith('https://')
-                      ? cur.banner!
-                      : '${Config.baseUrl}${cur.banner!}',
+                  cur.bannerUrl!.startsWith('http://') ||
+                          cur.bannerUrl!.startsWith('https://')
+                      ? cur.bannerUrl!
+                      : '${Config.baseUrl}${cur.bannerUrl!}',
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
@@ -234,10 +231,7 @@ class _ContentPageState extends State<ContentPage> {
           // 文章标题
           Text(
             cur.title,
-            style: TextStyle(
-              fontSize: 24.sp,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 16.h),
 
@@ -246,23 +240,20 @@ class _ContentPageState extends State<ContentPage> {
           SizedBox(height: 16.h),
 
           // 视频播放器（如果有）
-          if (cur.videoSrc != null &&
-              cur.videoSrc!.isNotEmpty &&
-              cur.videoSrc != 'null')
+          if (cur.videoUrl != null &&
+              cur.videoUrl!.isNotEmpty &&
+              cur.videoUrl != 'null')
             _buildVideoPlayer(cur),
 
           // HTML 内容 (预处理: 编码图片 URL 中的空格等字符, 否则网络图可能不显示)
           Html(
-            data: _encodeImageUrlsInHtml(cur.composition),
+            data: _encodeImageUrlsInHtml(cur.content),
             extensions: const [
               CustomImageExtension(),
               PreCodeHighlightExtension(),
             ],
             style: {
-              'body': Style(
-                margin: Margins.zero,
-                padding: HtmlPaddings.zero,
-              ),
+              'body': Style(margin: Margins.zero, padding: HtmlPaddings.zero),
               'p': Style(
                 fontSize: FontSize(16.sp),
                 lineHeight: const LineHeight(1.6),
@@ -322,7 +313,7 @@ class _ContentPageState extends State<ContentPage> {
         Icon(Icons.visibility, size: 16.sp, color: Colors.grey[600]),
         SizedBox(width: 4.w),
         Text(
-          '${item.viewnum}',
+          '${item.viewCount}',
           style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
         ),
         SizedBox(width: 16.w),
@@ -336,15 +327,15 @@ class _ContentPageState extends State<ContentPage> {
         Icon(Icons.access_time, size: 16.sp, color: Colors.grey[600]),
         SizedBox(width: 4.w),
         Text(
-          item.addtime.formatDate('yyyy-MM-dd HH:mm:ss'),
+          item.createdAt.formatDate('yyyy-MM-dd HH:mm:ss'),
           style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
         ),
-        if (item.category != null) ...[
+        if (item.categoryName != null) ...[
           SizedBox(width: 16.w),
           Icon(Icons.label, size: 16.sp, color: Colors.grey[600]),
           SizedBox(width: 4.w),
           Text(
-            item.category!,
+            item.categoryName ?? '',
             style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
           ),
         ],
@@ -369,7 +360,11 @@ class _ContentPageState extends State<ContentPage> {
                 padding: EdgeInsets.symmetric(vertical: 8.h),
                 child: Row(
                   children: [
-                    Icon(Icons.arrow_back, size: 16.sp, color: Colors.grey[700]),
+                    Icon(
+                      Icons.arrow_back,
+                      size: 16.sp,
+                      color: Colors.grey[700],
+                    ),
                     SizedBox(width: 8.w),
                     Expanded(
                       child: Column(
@@ -408,7 +403,11 @@ class _ContentPageState extends State<ContentPage> {
                 padding: EdgeInsets.symmetric(vertical: 8.h),
                 child: Row(
                   children: [
-                    Icon(Icons.arrow_forward, size: 16.sp, color: Colors.grey[700]),
+                    Icon(
+                      Icons.arrow_forward,
+                      size: 16.sp,
+                      color: Colors.grey[700],
+                    ),
                     SizedBox(width: 8.w),
                     Expanded(
                       child: Column(
@@ -450,10 +449,7 @@ class _ContentPageState extends State<ContentPage> {
       children: [
         Text(
           '欢迎留言',
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 12.h),
 
@@ -491,7 +487,8 @@ class _ContentPageState extends State<ContentPage> {
                       '${_commentController.text.length}/$_maxCommentLength',
                       style: TextStyle(
                         fontSize: 12.sp,
-                        color: _commentController.text.length > _maxCommentLength
+                        color:
+                            _commentController.text.length > _maxCommentLength
                             ? Colors.red
                             : Colors.grey[600],
                       ),
@@ -515,10 +512,7 @@ class _ContentPageState extends State<ContentPage> {
         if (item.comment != null && item.comment!.isNotEmpty) ...[
           Text(
             '评论 (${item.comment!.length})',
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 12.h),
           ...item.comment!.map((comment) => _buildCommentItem(comment)),
@@ -543,7 +537,7 @@ class _ContentPageState extends State<ContentPage> {
           Row(
             children: [
               Text(
-                comment.user,
+                comment.nickname,
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
@@ -552,18 +546,15 @@ class _ContentPageState extends State<ContentPage> {
               ),
               SizedBox(width: 8.w),
               Text(
-                comment.time.formatDate('yyyy-MM-dd HH:mm:ss'),
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: Colors.grey[500],
-                ),
+                comment.createdAt.formatDate('yyyy-MM-dd HH:mm:ss'),
+                style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
               ),
             ],
           ),
           SizedBox(height: 8.h),
           // 评论内容
           Text(
-            comment.comment,
+            comment.content,
             style: TextStyle(
               fontSize: 14.sp,
               color: Colors.grey[700],
@@ -596,11 +587,13 @@ class _ContentPageState extends State<ContentPage> {
 
   // 构建视频播放器
   Widget _buildVideoPlayer(BlogContentItem item) {
-    final isVlog = item.category?.toLowerCase() == 'vlog';
-    final coverUrl = isVlog && item.minpicUrl != null && item.minpicUrl!.isNotEmpty
-        ? (item.minpicUrl!.startsWith('http://') || item.minpicUrl!.startsWith('https://')
-            ? item.minpicUrl!
-            : '${Config.baseUrl}${item.minpicUrl!}')
+    final isVlog = item.categoryName?.toLowerCase() == 'vlog';
+    final coverUrl =
+        isVlog && item.coverUrl != null && item.coverUrl!.isNotEmpty
+        ? (item.coverUrl!.startsWith('http://') ||
+                  item.coverUrl!.startsWith('https://')
+              ? item.coverUrl!
+              : '${Config.baseUrl}${item.coverUrl!}')
         : null;
 
     return Container(
@@ -614,7 +607,8 @@ class _ContentPageState extends State<ContentPage> {
         child: Stack(
           children: [
             // 视频播放器（已初始化时显示）
-            if (_videoController != null && _videoController!.value.isInitialized)
+            if (_videoController != null &&
+                _videoController!.value.isInitialized)
               AspectRatio(
                 aspectRatio: _videoController!.value.aspectRatio,
                 child: Stack(
@@ -753,9 +747,7 @@ class _ContentPageState extends State<ContentPage> {
                         ),
                       )
                     else
-                      Container(
-                        color: Colors.grey[800],
-                      ),
+                      Container(color: Colors.grey[800]),
                     // Loading 动画
                     Center(
                       child: Column(
@@ -797,7 +789,7 @@ class _ContentPageState extends State<ContentPage> {
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);
     final seconds = duration.inSeconds.remainder(60);
-    
+
     if (hours > 0) {
       return '${twoDigits(hours)}:${twoDigits(minutes)}:${twoDigits(seconds)}';
     } else {
@@ -860,8 +852,10 @@ class _FullscreenVideoPageState extends State<_FullscreenVideoPage> {
       DeviceOrientation.portraitDown,
     ]);
     // 恢复状态栏和导航栏
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: SystemUiOverlay.values);
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: SystemUiOverlay.values,
+    );
     super.dispose();
   }
 

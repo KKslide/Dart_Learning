@@ -9,13 +9,13 @@ class BlogApi {
   /// 返回包含分类列表和博客列表的数据
   static Future<BlogResponse> getBlogPage() async {
     final ResultData(result: result, err: err) = await httpManager.get(
-      '/api/user/getpage',
+      '/api/user/page',
     );
-    
+
     if (err != null) {
       throw err;
     }
-    
+
     return BlogResponse.fromJson(result);
   }
 
@@ -24,14 +24,14 @@ class BlogApi {
   /// 返回包含当前文章、上一篇、下一篇和评论的数据
   static Future<BlogContentResponse> getBlogContent(int contentId) async {
     final ResultData(result: result, err: err) = await httpManager.post(
-      '/api/user/getcontent',
+      '/api/user/content',
       data: {'contentid': contentId},
     );
-    
+
     if (err != null) {
       throw err;
     }
-    
+
     return BlogContentResponse.fromJson(result);
   }
 }

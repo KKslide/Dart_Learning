@@ -8,11 +8,7 @@ class BlogContentResponse {
   final BlogContentItem cur;
   final BlogContentItem? next;
 
-  BlogContentResponse({
-    this.prev,
-    required this.cur,
-    this.next,
-  });
+  BlogContentResponse({this.prev, required this.cur, this.next});
 
   factory BlogContentResponse.fromJson(Map<String, dynamic> json) =>
       _$BlogContentResponseFromJson(json);
@@ -24,50 +20,47 @@ class BlogContentResponse {
 class BlogContentItem {
   final int id;
   final String title;
-  
-  @JsonKey(name: 'categoryID')
-  final String? categoryID;
-  
-  final String? category;
-  final String? banner;
-  final String composition;
+  @JsonKey(name: 'category_id')
+  final int? categoryId;
+  @JsonKey(name: 'category')
+  final String? categoryName;
+  @JsonKey(name: 'banner_url')
+  final String? bannerUrl;
+  final String content;
   final String? description;
-  final String addtime;
-  final String? edittime;
-  final int viewnum;
-  
-  @JsonKey(name: 'video_src')
-  final String? videoSrc;
-  
-  @JsonKey(name: 'minpic_url')
-  final String? minpicUrl;
-  
-  @JsonKey(name: 'is_show')
-  final String? isShow;
-  
-  @JsonKey(name: 'is_top')
-  final String? isTop;
-  
+  @JsonKey(name: 'created_at')
+  final String createdAt;
+  @JsonKey(name: 'updated_at')
+  final String? updatedAt;
+  @JsonKey(name: 'view_count')
+  final int viewCount;
+  @JsonKey(name: 'video_url')
+  final String? videoUrl;
+  @JsonKey(name: 'cover_url')
+  final String? coverUrl;
+  @JsonKey(name: 'is_published')
+  final int? isPublished;
+  @JsonKey(name: 'is_pinned')
+  final int? isPinned;
   @JsonKey(name: 'is_del')
-  final String? isDel;
-  
+  final int? isDel;
   final List<CommentItem>? comment;
 
   BlogContentItem({
     required this.id,
     required this.title,
-    this.categoryID,
-    this.category,
-    this.banner,
-    required this.composition,
+    this.categoryId,
+    this.categoryName,
+    this.bannerUrl,
+    required this.content,
     this.description,
-    required this.addtime,
-    this.edittime,
-    required this.viewnum,
-    this.videoSrc,
-    this.minpicUrl,
-    this.isShow,
-    this.isTop,
+    required this.createdAt,
+    this.updatedAt,
+    required this.viewCount,
+    this.videoUrl,
+    this.coverUrl,
+    this.isPublished,
+    this.isPinned,
     this.isDel,
     this.comment,
   });
@@ -81,29 +74,23 @@ class BlogContentItem {
 @JsonSerializable()
 class CommentItem {
   final String ip;
-  
-  @JsonKey(name: 'a_id')
-  final int aId;
-  
-  @JsonKey(name: 't_id')
-  final int tId;
-  
-  final String time;
-  final String user;
-  
+  final int articleId;
+  final int id;
+  @JsonKey(name: 'created_at')
+  final String createdAt;
+  final String nickname;
   @JsonKey(name: 'is_del')
-  final String isDel;
-  
-  final String comment;
+  final int isDel;
+  final String content;
 
   CommentItem({
     required this.ip,
-    required this.aId,
-    required this.tId,
-    required this.time,
-    required this.user,
+    required this.articleId,
+    required this.id,
+    required this.createdAt,
+    required this.nickname,
     required this.isDel,
-    required this.comment,
+    required this.content,
   });
 
   factory CommentItem.fromJson(Map<String, dynamic> json) =>
