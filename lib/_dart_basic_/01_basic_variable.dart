@@ -15,7 +15,7 @@ late String someVar;
 // 变量相关
 class VariableType {
   var time = DateTime.now();
-  static the_variable() {
+  static void the_variable() {
     // var name = 'aaa';
     // name = 'bb';
     // 可以被再次赋值?
@@ -63,8 +63,8 @@ class AboutOperator {
       ?..
       ...?
    */
-  static the_operator() {
-    var res = 5~/2;
+  static void the_operator() {
+    var res = 5~/2; // 地板除, 结果向下取整, 类似于js的Math.floor()
     print('${5/2} | $res');
 
     var obj = { 'a': fn1, 'b': fn2, 'c': '' };
@@ -72,17 +72,17 @@ class AboutOperator {
 
   }
 
-  static fn1 () {
+  static void fn1 () {
     print('FN1 =====');
   }
-  static fn2 () {
+  static void fn2 () {
     print('this is fn2');
   }
 }
 
 // 字符串类型
 class StringType {
-  static the_string_type() {
+  static void the_string_type() {
     String firstName = 'Bruce';
     String lastName = 'Wayne';
     // String Batman = '${firstName} $lastName __ ${DateTime.now()}';
@@ -94,7 +94,7 @@ class StringType {
 
 // 数字类型
 class NumberType {
-  static the_num_type() {
+  static void the_num_type() {
     int num1 = 100; // only 整型
     num num2 = 99.99; // 可整可浮
     double pi = 3.14; // 只能小数
@@ -120,7 +120,7 @@ class NumberType {
 
 // 布尔类型
 class BoolType {
-  static the_bool_type() {
+  static void the_bool_type() {
     bool isHandsome = true;
     print('$isHandsome');
   }
@@ -128,7 +128,7 @@ class BoolType {
 
 // 记录类型
 class RecordType {
-  static the_record_type () {
+  static void the_record_type () {
     // 方式1
     // var record = ('first', a: 2, b: true, 'last');
     // print(record);
@@ -170,7 +170,7 @@ class RecordType {
 
 // List 数组
 class ListType {
-  static the_list_type() {
+  static void the_list_type() {
     List arr = [1, 2, 3, 4, 5];
     print('1--- $arr');
     /* 
@@ -202,7 +202,7 @@ class ListType {
 
 // Map 对象
 class MapType {
-  static the_map_type() {
+  static void the_map_type() {
     Map<String, dynamic> person = {
       'name': 'lyk',
       'age': 28,

@@ -19,7 +19,7 @@ void main() {
 
 // 集合-列表-List, 就像是javascript的数组, 文档: https://api.dart.dev/dart-core/List-class.html
 class ListType {
-  static the_list_type() {
+  static void the_list_type() {
     // const arr = [1,23,4,5];
     // arr.forEach(print);
 
@@ -36,7 +36,7 @@ class MapType {}
 
 // 展开运算符 (...) 和 空感知展开运算符 (...?)
 class OperatorType {
-  static the_operator_type() {
+  static void the_operator_type() {
     // var arr1 = [1,2,3];
     // var arr2 = [...arr1, 4];
     // print(arr2);
@@ -53,7 +53,7 @@ class OperatorType {
 
 // 范型 |||简单类型&函数
 class GenericsType {
-  static the_generics() {
+  static void the_generics() {
     // List的范型
     List<String> arr = []; // 写法1
     // Set的范型
@@ -63,7 +63,7 @@ class GenericsType {
   }
 
   // 泛型-函数
-  static getData<T>(T val) {
+  static T getData<T>(T val) {
     return val;
   }
 }
@@ -89,15 +89,15 @@ class GenericsClass<T> {
  */
 
 abstract class Cache<T> {
-  getByKey(String key);
+  T getByKey(String key);
   void setByKey(String key, T val);
 }
 
 class FileCache<T> implements Cache<T> {
   @override
-  getByKey(String key) {
+  T getByKey(String key) {
     String text = 'yeah! I get the key!';
-    return text;
+    return text as T;
   }
 
   @override
