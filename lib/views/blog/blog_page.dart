@@ -326,10 +326,10 @@ class _BlogPageState extends State<BlogPage>
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          if (blog.description.isNotEmpty) ...[
+                          if (blog.description?.isNotEmpty == true) ...[
                             SizedBox(height: 8.h),
                             Text(
-                              blog.description,
+                              blog.description!,
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 color: Colors.grey[700],
@@ -521,10 +521,10 @@ class _BlogPageState extends State<BlogPage>
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          if (blog.description.isNotEmpty) ...[
+                          if (blog.description?.isNotEmpty == true) ...[
                             SizedBox(height: 6.h),
                             Text(
-                              blog.description,
+                              blog.description!,
                               style: TextStyle(
                                 fontSize: 13.sp,
                                 color: Colors.grey[700],
@@ -689,10 +689,10 @@ class _BlogPageState extends State<BlogPage>
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (blog.description.isNotEmpty) ...[
+                      if (blog.description?.isNotEmpty == true) ...[
                         SizedBox(height: 6.h),
                         Text(
-                          blog.description,
+                          blog.description!,
                           style: TextStyle(
                             fontSize: 12.sp,
                             color: Colors.grey[700],

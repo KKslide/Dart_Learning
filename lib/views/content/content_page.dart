@@ -27,15 +27,21 @@ class _ContentPageState extends State<ContentPage> {
   bool _isLoading = true;
   String? _error;
   VideoPlayerController? _videoController;
+  /// 评论内容输入控制器
   final TextEditingController _commentController = TextEditingController();
+
   final FocusNode _commentFocusNode = FocusNode();
   final int _maxCommentLength = 500;
   bool _isCommentFocused = false;
+
+  /// 是否正在提交评论
+  bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
     _loadContent();
+    // 监听评论内容变化以刷新 UI（字数统计、按钮状态等）
     _commentController.addListener(() {
       setState(() {});
     });
@@ -55,14 +61,21 @@ class _ContentPageState extends State<ContentPage> {
     super.dispose();
   }
 
-  Future<void> _loadContent() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+  /// 加载文章内容
+  /// [silent] 为 true 时不显示全屏 loading（用于评论提交后静默刷新）
+  Future<void> _loadContent({bool silent = false}) async {
+    // 静默模式不触发全屏 loading，避免闪烁
+    if (!silent) {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+    }
 
     try {
       final response = await BlogApi.getBlogContent(widget.contentId);
+      if (!mounted) return;
+
       setState(() {
         _contentResponse = response;
         _isLoading = false;
@@ -75,6 +88,7 @@ class _ContentPageState extends State<ContentPage> {
         _initVideoPlayer(response.cur.videoUrl!);
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _error = e.toString();
         _isLoading = false;
@@ -113,24 +127,49 @@ class _ContentPageState extends State<ContentPage> {
     }
   }
 
-  void _submitComment() {
+  /// 提交评论（昵称由服务端根据 IP 自动生成）
+  Future<void> _submitComment() async {
     final comment = _commentController.text.trim();
-    if (comment.isEmpty) {
-      return;
-    }
+    if (comment.isEmpty) return;
+
     if (comment.length > _maxCommentLength) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('评论不能超过 $_maxCommentLength 字')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('评论不能超过 $_maxCommentLength 字')),
+      );
       return;
     }
 
-    // 暂时用 print 处理
-    print('提交评论: $comment');
-    _commentController.clear();
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('评论已提交（调试模式）')));
+    setState(() => _isSubmitting = true);
+
+    try {
+      await BlogApi.postComment(
+        articleId: widget.contentId,
+        comment: comment,
+      );
+
+      if (!mounted) return;
+
+      // 清空输入框
+      _commentController.clear();
+
+      // 静默刷新文章内容以获取最新评论列表（不显示全屏 loading）
+      await _loadContent(silent: true);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('评论成功')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('评论失败: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
   }
 
   void _navigateToArticle(int? articleId) {
@@ -453,7 +492,7 @@ class _ContentPageState extends State<ContentPage> {
         ),
         SizedBox(height: 12.h),
 
-        // 评论输入框
+        // 评论输入框 + 提交按钮
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -498,11 +537,22 @@ class _ContentPageState extends State<ContentPage> {
               ),
             ),
             SizedBox(width: 8.w),
+            // 提交按钮：评论为空或正在提交时禁用
             ElevatedButton(
-              onPressed: _commentController.text.trim().isEmpty
-                  ? null
-                  : _submitComment,
-              child: Text(_isCommentFocused ? '确认' : '确定'),
+              onPressed:
+                  (_commentController.text.trim().isEmpty || _isSubmitting)
+                      ? null
+                      : _submitComment,
+              child: _isSubmitting
+                  ? SizedBox(
+                      width: 16.w,
+                      height: 16.w,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(_isCommentFocused ? '确认' : '确定'),
             ),
           ],
         ),

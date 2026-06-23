@@ -24,8 +24,18 @@ class Category {
   final String name;
   @JsonKey(name: 'show_type')
   final String showType;
+  @JsonKey(name: 'banner_url')
+  final String? bannerUrl;
+  @JsonKey(name: 'sort_order')
+  final int? sortOrder;
 
-  Category({required this.id, required this.name, required this.showType});
+  Category({
+    required this.id,
+    required this.name,
+    required this.showType,
+    this.bannerUrl,
+    this.sortOrder,
+  });
 
   factory Category.fromJson(Map<String, dynamic> json) =>
       _$CategoryFromJson(json);
@@ -42,7 +52,7 @@ class BlogItem {
   final String? categoryName;
   @JsonKey(name: 'category_id')
   final int? categoryId;
-  final String description;
+  final String? description;
   @JsonKey(name: 'created_at')
   final String createdAt;
   @JsonKey(name: 'view_count')
@@ -60,18 +70,27 @@ class BlogItem {
   @JsonKey(name: 'comment_num')
   final int commentNum;
 
+  /// 搜索接口专属：分类名（冗余字段，与 category 相同）
+  @JsonKey(name: 'cate_name')
+  final String? cateName;
+
+  /// 搜索接口专属：该筛选条件下的总记录数
+  final int? total;
+
   BlogItem({
     required this.id,
     required this.title,
     this.categoryName,
     this.categoryId,
-    required this.description,
+    this.description,
     required this.createdAt,
     required this.viewCount,
     this.coverUrl,
     required this.isPinned,
     this.sortOrder,
     required this.commentNum,
+    this.cateName,
+    this.total,
   });
 
   factory BlogItem.fromJson(Map<String, dynamic> json) =>

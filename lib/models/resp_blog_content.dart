@@ -24,7 +24,7 @@ class BlogContentItem {
   final int? categoryId;
   @JsonKey(name: 'category')
   final String? categoryName;
-  @JsonKey(name: 'banner_url')
+  @JsonKey(name: 'category_banner_url')
   final String? bannerUrl;
   final String content;
   final String? description;
@@ -74,6 +74,7 @@ class BlogContentItem {
 @JsonSerializable()
 class CommentItem {
   final String ip;
+  @JsonKey(name: 'article_id')
   final int articleId;
   final int id;
   @JsonKey(name: 'created_at')
