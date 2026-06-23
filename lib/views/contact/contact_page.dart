@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_application/widget/iconfont.dart';
+import 'package:flutter_application/api/blog_api.dart';
+import 'package:flutter_application/models/resp_message.dart';
+import 'package:flutter_application/extensions/date_extension.dart';
 
 @RoutePage()
 class ContactPage extends StatefulWidget {
@@ -14,8 +17,22 @@ class ContactPage extends StatefulWidget {
 
 class _ContactPageState extends State<ContactPage>
     with SingleTickerProviderStateMixin {
+  /// 留言内容输入控制器
   final TextEditingController _messageController = TextEditingController();
-  final int _maxLength = 200;
+
+  final int _maxLength = 500;
+
+  /// 留言列表
+  List<MessageItem> _messages = [];
+
+  /// 是否正在加载留言列表
+  bool _isLoadingMessages = true;
+
+  /// 是否正在提交留言
+  bool _isSubmitting = false;
+
+  /// 加载留言列表时的错误
+  String? _loadError;
   
   // 拖拽相关
   late AnimationController _animationController;
@@ -40,7 +57,7 @@ class _ContactPageState extends State<ContactPage>
       parent: _animationController,
       curve: Curves.easeOut,
     ));
-    
+
     // 监听动画值变化
     _positionAnimation.addListener(() {
       if (!_isDragging && _animationController.isAnimating) {
@@ -49,6 +66,33 @@ class _ContactPageState extends State<ContactPage>
         });
       }
     });
+
+    // 初始化：加载留言列表
+    _loadMessages();
+  }
+
+  /// 加载留言列表
+  Future<void> _loadMessages() async {
+    setState(() {
+      _isLoadingMessages = true;
+      _loadError = null;
+    });
+
+    try {
+      final messages = await BlogApi.getMessages();
+      if (!mounted) return;
+      setState(() {
+        // 仅展示未被软删除的留言
+        _messages = messages.where((m) => m.isActive).toList();
+        _isLoadingMessages = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loadError = e.toString();
+        _isLoadingMessages = false;
+      });
+    }
   }
 
   @override
@@ -185,12 +229,147 @@ class _ContactPageState extends State<ContactPage>
     }
   }
 
-  // 提交消息（暂时只 print）
-  void _submitMessage() {
-    final message = _messageController.text.trim();
-    debugPrint('提交的消息: $message');
-    // 可以在这里添加清空输入框的逻辑
-    // _messageController.clear();
+  /// 提交留言（昵称由服务端根据 IP 自动生成）
+  Future<void> _submitMessage() async {
+    final content = _messageController.text.trim();
+    if (content.isEmpty) return;
+
+    if (content.length > _maxLength) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('留言不能超过 $_maxLength 字')),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      await BlogApi.postMessage(content: content);
+
+      if (!mounted) return;
+
+      // 清空留言内容（保留昵称）
+      _messageController.clear();
+      FocusScope.of(context).unfocus();
+
+      // 重新加载留言列表
+      await _loadMessages();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('留言成功')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('留言失败: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+
+  /// 构建留言列表
+  Widget _buildMessageList() {
+    if (_isLoadingMessages) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 24),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_loadError != null) {
+      return Center(
+        child: Column(
+          children: [
+            Text(
+              '加载失败: $_loadError',
+              style: TextStyle(fontSize: 14.sp, color: Colors.red),
+            ),
+            SizedBox(height: 8.h),
+            TextButton(
+              onPressed: _loadMessages,
+              child: const Text('重试'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_messages.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 24.h),
+          child: Text(
+            '暂无留言，来说点什么吧',
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: Colors.grey[600],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: _messages.map((msg) => _buildMessageItem(msg)).toList(),
+    );
+  }
+
+  /// 单条留言卡片
+  Widget _buildMessageItem(MessageItem msg) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 12.h),
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 昵称 + 时间
+          Row(
+            children: [
+              Icon(Icons.person, size: 14.sp, color: Colors.grey[600]),
+              SizedBox(width: 4.w),
+              Text(
+                msg.nickname,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[800],
+                ),
+              ),
+              const Spacer(),
+              Text(
+                msg.createdAt.formatDate('yyyy-MM-dd HH:mm:ss'),
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  color: Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          // 留言内容
+          Text(
+            msg.content,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: Colors.grey[700],
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // 耳机图标点击
@@ -243,7 +422,7 @@ class _ContactPageState extends State<ContactPage>
                           ),
                         ),
                         SizedBox(height: 20.h),
-                        
+
                         // Message Input Section
                         Container(
                           constraints: BoxConstraints(minHeight: 120.h),
@@ -275,7 +454,6 @@ class _ContactPageState extends State<ContactPage>
                                 onSubmitted: (value) {
                                   // 点击键盘上的"确定"按钮时，提交消息并失焦
                                   _submitMessage();
-                                  FocusScope.of(context).unfocus();
                                 },
                               ),
                               // 自定义字符计数显示在右下角
@@ -294,25 +472,36 @@ class _ContactPageState extends State<ContactPage>
                           ),
                         ),
                         SizedBox(height: 10.h),
-                        
+
                         // Confirm Button
                         Align(
                           alignment: Alignment.centerLeft,
                           child: GestureDetector(
-                            onTap: _submitMessage,
+                            onTap: _isSubmitting ? null : _submitMessage,
                             child: Container(
                               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
                               decoration: BoxDecoration(
-                                color: Colors.black,
+                                color: (_messageController.text.trim().isEmpty || _isSubmitting)
+                                    ? Colors.grey
+                                    : Colors.black,
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              child: Text(
-                                'Send',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14.sp,
-                                ),
-                              ),
+                              child: _isSubmitting
+                                  ? SizedBox(
+                                      width: 16.w,
+                                      height: 16.w,
+                                      child: const CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : Text(
+                                      'Send',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14.sp,
+                                      ),
+                                    ),
                             ),
                           ),
                         ),
@@ -333,16 +522,16 @@ class _ContactPageState extends State<ContactPage>
                                   color: Colors.blue,
                                 ),
                               ),
-                              SizedBox(width: 4.w),
-                              Text('👈', style: TextStyle(fontSize: 12.sp)),
-                              SizedBox(width: 4.w),
-                              Text(
-                                'click to call me',
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: Colors.blue,
-                                ),
-                              ),
+                              // SizedBox(width: 4.w),
+                              // Text('👈', style: TextStyle(fontSize: 12.sp)),
+                              // SizedBox(width: 4.w),
+                              // Text(
+                              //   'click to call me',
+                              //   style: TextStyle(
+                              //     fontSize: 14.sp,
+                              //     color: Colors.blue,
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),
@@ -378,16 +567,16 @@ class _ContactPageState extends State<ContactPage>
                                   color: Colors.blue,
                                 ),
                               ),
-                              SizedBox(width: 4.w),
-                              Text('👈', style: TextStyle(fontSize: 12.sp)),
-                              SizedBox(width: 4.w),
-                              Text(
-                                'click to see',
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: Colors.blue,
-                                ),
-                              ),
+                              // SizedBox(width: 4.w),
+                              // Text('👈', style: TextStyle(fontSize: 12.sp)),
+                              // SizedBox(width: 4.w),
+                              // Text(
+                              //   'click to see',
+                              //   style: TextStyle(
+                              //     fontSize: 14.sp,
+                              //     color: Colors.blue,
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),
@@ -402,9 +591,6 @@ class _ContactPageState extends State<ContactPage>
                           ),
                         ),
                         SizedBox(height: 10.h),
-                        Divider(color: Colors.black, thickness: 1),
-                        SizedBox(height: 15.h),
-                        
                         // Social Media Icons
                         Row(
                           children: [
@@ -454,18 +640,23 @@ class _ContactPageState extends State<ContactPage>
                             ),
                           ],
                         ),
-                        SizedBox(height: 30.h),
-                        
-                        // Comments Message
-                        Center(
-                          child: Text(
-                            'there is no more comments',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              color: Colors.grey[600],
-                            ),
+                        SizedBox(height: 15.h),
+                        Divider(color: Colors.black, thickness: 1),
+
+                        // 留言列表标题
+                        Text(
+                          'Messages (${_messages.length})',
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
+                        SizedBox(height: 10.h),
+                        // Divider(color: Colors.black, thickness: 1),
+                        // SizedBox(height: 15.h),
+
+                        // 留言列表内容
+                        _buildMessageList(),
                       ],
                     ),
                   ),
