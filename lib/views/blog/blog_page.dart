@@ -26,6 +26,10 @@ class _BlogPageState extends State<BlogPage>
   bool _isLoading = true;
   String? _error;
 
+  /// 从文章详情页返回时带回来的最新浏览量缓存
+  /// key: articleId, value: 更新后的 viewCount
+  final Map<int, int> _updatedViewCounts = {};
+
   @override
   void initState() {
     super.initState();
@@ -74,6 +78,11 @@ class _BlogPageState extends State<BlogPage>
       (cat) => cat.name == _selectedCategory,
       orElse: () => _blogResponse!.catList.first,
     );
+  }
+
+  /// 获取文章的实际显示浏览量（优先使用从详情页带回的最新值）
+  int _getDisplayViewCount(BlogItem blog) {
+    return _updatedViewCounts[blog.id] ?? blog.viewCount;
   }
 
   List<BlogItem> get _currentBlogList {
@@ -268,8 +277,13 @@ class _BlogPageState extends State<BlogPage>
       itemBuilder: (context, index) {
         final blog = blogList[index];
         return GestureDetector(
-          onTap: () {
-            context.router.push(ContentRoute(contentId: blog.id));
+          onTap: () async {
+            final newCount = await context.router.push<int>(
+              ContentRoute(contentId: blog.id),
+            );
+            if (newCount != null && mounted) {
+              setState(() => _updatedViewCounts[blog.id] = newCount);
+            }
           },
           child: Card(
             margin: EdgeInsets.only(bottom: 12.h),
@@ -348,7 +362,7 @@ class _BlogPageState extends State<BlogPage>
                               ),
                               SizedBox(width: 4.w),
                               Text(
-                                '${blog.viewCount}',
+                                '${_getDisplayViewCount(blog)}',
                                 style: TextStyle(
                                   fontSize: 12.sp,
                                   color: Colors.grey[600],
@@ -434,8 +448,13 @@ class _BlogPageState extends State<BlogPage>
       itemBuilder: (context, index) {
         final blog = blogList[index];
         return GestureDetector(
-          onTap: () {
-            context.router.push(ContentRoute(contentId: blog.id));
+          onTap: () async {
+            final newCount = await context.router.push<int>(
+              ContentRoute(contentId: blog.id),
+            );
+            if (newCount != null && mounted) {
+              setState(() => _updatedViewCounts[blog.id] = newCount);
+            }
           },
           child: Card(
             margin: EdgeInsets.only(bottom: 12.h),
@@ -543,7 +562,7 @@ class _BlogPageState extends State<BlogPage>
                               ),
                               SizedBox(width: 4.w),
                               Text(
-                                '${blog.viewCount}',
+                                '${_getDisplayViewCount(blog)}',
                                 style: TextStyle(
                                   fontSize: 11.sp,
                                   color: Colors.grey[600],
@@ -608,8 +627,13 @@ class _BlogPageState extends State<BlogPage>
             150.h + (index % 6) * 10.h; // 150, 160, 170, 180, 190, 200 循环
 
         return GestureDetector(
-          onTap: () {
-            context.router.push(ContentRoute(contentId: blog.id));
+          onTap: () async {
+            final newCount = await context.router.push<int>(
+              ContentRoute(contentId: blog.id),
+            );
+            if (newCount != null && mounted) {
+              setState(() => _updatedViewCounts[blog.id] = newCount);
+            }
           },
           child: Card(
             clipBehavior: Clip.antiAlias,
@@ -712,7 +736,7 @@ class _BlogPageState extends State<BlogPage>
                           ),
                           SizedBox(width: 4.w),
                           Text(
-                            '${blog.viewCount}',
+                            '${_getDisplayViewCount(blog)}',
                             style: TextStyle(
                               fontSize: 10.sp,
                               color: Colors.grey[600],

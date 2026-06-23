@@ -10,9 +10,6 @@ PODS:
     - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
-  - path_provider_foundation (0.0.1):
-    - Flutter
-    - FlutterMacOS
   - pdfium_flutter (0.1.5):
     - Flutter
     - FlutterMacOS
@@ -40,7 +37,6 @@ DEPENDENCIES:
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - image_gallery_saver (from `.symlinks/plugins/image_gallery_saver/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
-  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - pdfium_flutter (from `.symlinks/plugins/pdfium_flutter/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - photo_manager (from `.symlinks/plugins/photo_manager/darwin`)
@@ -62,8 +58,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_gallery_saver/ios"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
-  path_provider_foundation:
-    :path: ".symlinks/plugins/path_provider_foundation/darwin"
   pdfium_flutter:
     :path: ".symlinks/plugins/pdfium_flutter/darwin"
   permission_handler_apple:
@@ -80,20 +74,19 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
-  connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
+  connectivity_plus: 2a701ffec2c0ae28a48cf7540e279787e77c447d
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  flutter_local_notifications: ad39620c743ea4c15127860f4b5641649a988100
-  fluttertoast: 2c67e14dce98bbdb200df9e1acf610d7a6264ea1
-  image_gallery_saver: 14711d79da40581063e8842a11acf1969d781ed7
-  image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
-  path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
-  pdfium_flutter: 512bc19dbbd80b4287d04869aa19ad729289079d
-  permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
-  photo_manager: fe4cbb0808b96f8be4af7ce6ae18dcd9c9b983c6
-  shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
-  url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
-  video_player_avfoundation: dd410b52df6d2466a42d28550e33e4146928280a
-  webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
+  flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086
+  fluttertoast: 21eecd6935e7064cc1fcb733a4c5a428f3f24f0f
+  image_gallery_saver: cb43cc43141711190510e92c460eb1655cd343cb
+  image_picker_ios: 4f2f91b01abdb52842a8e277617df877e40f905b
+  pdfium_flutter: 1cfb4ed2070a5f7df49eb9481210c92fe8b9c5b1
+  permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
+  photo_manager: 647b6f5c5057632e2d00e2921c6ce3437ded57a9
+  shared_preferences_foundation: 5086985c1d43c5ba4d5e69a4e8083a389e2909e6
+  url_launcher_ios: bb13df5870e8c4234ca12609d04010a21be43dfa
+  video_player_avfoundation: 7993f492ae0bd77edaea24d9dc051d8bb2cd7c86
+  webview_flutter_wkwebview: 29eb20d43355b48fe7d07113835b9128f84e3af4
 
 PODFILE CHECKSUM: 251cb053df7158f337c0712f2ab29f4e0fa474ce
 

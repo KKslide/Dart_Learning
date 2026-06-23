@@ -82,8 +82,9 @@ class _ContactPageState extends State<ContactPage>
       final messages = await BlogApi.getMessages();
       if (!mounted) return;
       setState(() {
-        // 仅展示未被软删除的留言
-        _messages = messages.where((m) => m.isActive).toList();
+        // 仅展示未被软删除的留言，按时间倒序（最新在上面）
+        _messages = messages.where((m) => m.isActive).toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
         _isLoadingMessages = false;
       });
     } catch (e) {
@@ -199,24 +200,31 @@ class _ContactPageState extends State<ContactPage>
     }
   }
 
-  // 打开地图
+  // 打开地图App（优先唤起原生地图应用，失败降级到网页）
   Future<void> _openMap(String address) async {
-    // 尝试使用 Google Maps
-    final String googleMapsUrl = 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(address)}';
-    final Uri googleMapsUri = Uri.parse(googleMapsUrl);
-    
-    if (await canLaunchUrl(googleMapsUri)) {
-      await launchUrl(googleMapsUri, mode: LaunchMode.externalApplication);
-    } else {
-      // 如果 Google Maps 不可用，尝试使用系统默认地图
-      final String encodedAddress = Uri.encodeComponent(address);
-      final Uri mapUri = Uri.parse('geo:0,0?q=$encodedAddress');
-      if (await canLaunchUrl(mapUri)) {
-        await launchUrl(mapUri, mode: LaunchMode.externalApplication);
-      } else {
-        debugPrint('无法打开地图: $address');
-      }
+    final encoded = Uri.encodeComponent(address);
+
+    // iOS: 优先用 maps:// 协议
+    if (await canLaunchUrl(Uri.parse('maps:$address'))) {
+      await launchUrl(Uri.parse('maps:$address'), mode: LaunchMode.externalApplication);
+      return;
     }
+
+    // Android/通用：用 geo: 协议唤起系统默认地图App
+    final Uri geoUri = Uri.parse('geo:0,0?q=$encoded');
+    if (await canLaunchUrl(geoUri)) {
+      await launchUrl(geoUri, mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    // 降级：浏览器打开 Google Maps
+    final Uri webUri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$encoded');
+    if (await canLaunchUrl(webUri)) {
+      await launchUrl(webUri, mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    debugPrint('无法打开地图: $address');
   }
 
   // 打开浏览器

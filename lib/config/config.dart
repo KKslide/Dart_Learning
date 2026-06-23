@@ -8,6 +8,19 @@ class Config {
 
   /// 现在暂时用本地ip开发, 如果后面要发布到ipa或者apk的话, 再改成线上ip或者域名
   static Future<void> init({int port = _defaultPort}) async {
+    // 优先使用 dart-define 传入的 API_HOST（真机调试时由外部指定电脑 IP）
+    // 用法: flutter run --dart-define=API_HOST=本地IP (用这个命令来查询: ipconfig getifaddr en0)
+    const overrideHost = String.fromEnvironment('API_HOST');
+    if (overrideHost.isNotEmpty) {
+      _baseUrl = 'http://$overrideHost:$port';
+      logger.info('================ 查看配置信息 =================');
+      logger.info('baseUrl: $_baseUrl（来自 --dart-define=API_HOST）');
+      logger.info('debug: $debug');
+      logger.info('port: $port');
+      return;
+    }
+
+    // 模拟器场景：自动检测 Mac 的局域网 IP
     final localIp = await _findLocalIpv4();
     final host = localIp ?? '127.0.0.1';
     _baseUrl = 'http://$host:$port';

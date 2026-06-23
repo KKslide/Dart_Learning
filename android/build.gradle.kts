@@ -1,7 +1,12 @@
+import org.gradle.api.tasks.compile.JavaCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 allprojects {
     repositories {
-        google()
-        mavenCentral()
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
     }
 }
 
@@ -17,6 +22,20 @@ subprojects {
 }
 subprojects {
     project.evaluationDependsOn(":app")
+}
+
+gradle.projectsEvaluated {
+    subprojects {
+        tasks.withType<KotlinCompile>().configureEach {
+            val javaTaskName = name.replace("Kotlin", "JavaWithJavac")
+            val javaTask = tasks.findByName(javaTaskName) as? JavaCompile
+            if (javaTask != null) {
+                kotlinOptions {
+                    jvmTarget = javaTask.targetCompatibility
+                }
+            }
+        }
+    }
 }
 
 tasks.register<Delete>("clean") {

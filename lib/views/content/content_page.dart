@@ -37,6 +37,9 @@ class _ContentPageState extends State<ContentPage> {
   /// 是否正在提交评论
   bool _isSubmitting = false;
 
+  /// 记录阅读后的最新浏览量（用于本页显示，覆盖 item.viewCount）
+  int? _displayViewCount;
+
   @override
   void initState() {
     super.initState();
@@ -81,6 +84,9 @@ class _ContentPageState extends State<ContentPage> {
         _isLoading = false;
       });
 
+      // 记录文章阅读（静默，不影响主流程）
+      _recordView();
+
       // 初始化视频播放器（如果有视频）
       if (response.cur.videoUrl != null &&
           response.cur.videoUrl!.isNotEmpty &&
@@ -93,6 +99,18 @@ class _ContentPageState extends State<ContentPage> {
         _error = e.toString();
         _isLoading = false;
       });
+    }
+  }
+
+  /// 记录文章阅读（静默，失败不影响主流程）
+  Future<void> _recordView() async {
+    try {
+      final newViewCount = await BlogApi.recordArticleView(widget.contentId);
+      if (!mounted) return;
+      setState(() => _displayViewCount = newViewCount);
+    } catch (e) {
+      // 静默失败，不阻塞用户交互
+      debugPrint('记录文章阅读失败: $e');
     }
   }
 
@@ -185,7 +203,12 @@ class _ContentPageState extends State<ContentPage> {
         title: const Text('🎥 ∙ 📷'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.router.pop(),
+          onPressed: () {
+            // 回传当前浏览量，供列表页动态更新
+            final viewCount =
+                _displayViewCount ?? _contentResponse?.cur.viewCount;
+            context.router.pop<int>(viewCount);
+          },
         ),
       ),
       body: _isLoading
@@ -352,7 +375,7 @@ class _ContentPageState extends State<ContentPage> {
         Icon(Icons.visibility, size: 16.sp, color: Colors.grey[600]),
         SizedBox(width: 4.w),
         Text(
-          '${item.viewCount}',
+          '${_displayViewCount ?? item.viewCount}',
           style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
         ),
         SizedBox(width: 16.w),
@@ -565,7 +588,8 @@ class _ContentPageState extends State<ContentPage> {
             style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 12.h),
-          ...item.comment!.map((comment) => _buildCommentItem(comment)),
+          ...(item.comment!.toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt)))
+            .map((comment) => _buildCommentItem(comment)),
         ],
       ],
     );

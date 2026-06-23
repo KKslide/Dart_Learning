@@ -133,4 +133,18 @@ class BlogApi {
       throw Exception(result['msg'] ?? '留言提交失败');
     }
   }
+
+  /// 记录文章阅读（同日同IP去重）
+  /// POST /api/user/articles/:id/view
+  /// 返回更新后的浏览量（无论本次是否计入，都取服务端最新 count）
+  static Future<int> recordArticleView(int articleId) async {
+    final ResultData(result: result, err: err) = await httpManager.post(
+      '/api/user/articles/$articleId/view',
+    );
+
+    if (err != null) throw err;
+
+    // 响应格式: { code, msg, data: { counted, view_count } }
+    return (result['data']['view_count'] as num).toInt();
+  }
 }
