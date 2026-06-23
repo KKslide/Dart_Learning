@@ -138,6 +138,8 @@ class _BlogPageState extends State<BlogPage>
         children: [
           Expanded(
             child: TextField(
+              // 搜索框设为只读，点击时跳转到专门的搜索页面
+              readOnly: true,
               decoration: InputDecoration(
                 hintText: 'Content Search',
                 prefixIcon: const Icon(Icons.search),
@@ -151,11 +153,9 @@ class _BlogPageState extends State<BlogPage>
                   vertical: 12.h,
                 ),
               ),
-              onSubmitted: (value) {
-                print('搜索内容: $value');
-              },
               onTap: () {
-                print('点击搜索框');
+                // 跳转到搜索页（不传关键词，展示全部已发布文章）
+                context.router.push(SearchResultRoute());
               },
             ),
           ),

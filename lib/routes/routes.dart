@@ -12,6 +12,7 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: HomeRoute.page, path: '/home'),
     AutoRoute(page: BlogRoute.page, path: '/blog'),
     AutoRoute(page: ContentRoute.page, path: '/content/:contentId'),
+    AutoRoute(page: SearchResultRoute.page, path: '/search'),
     AutoRoute(page: AboutRoute.page, path: '/about'),
     AutoRoute(page: ResumePreviewRoute.page, path: '/resume_preview'),
     AutoRoute(page: ContactRoute.page, path: '/contact'),
