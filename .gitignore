@@ -35,6 +35,10 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Code generation — build_runner (json_serializable, riverpod, auto_route, etc.)
+**/*.g.dart
+**/*.gr.dart
+
 /notes/
 
 # Symbolication related
